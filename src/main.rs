@@ -16,7 +16,11 @@ fn main() -> Result<()> {
     let backend: Box<dyn UciBackend> = if let Some(path) = opts.engine {
         Box::new(backends::NativeUci::new(path))
     } else {
-        Box::new(backends::GWasmUci::new())
+        // FIXME unwrap
+        Box::new(backends::GWasmUci::new(
+            &opts.wasm_path.unwrap(),
+            &opts.js_path.unwrap(),
+        )?)
     };
     let cmds = backend.generate_uci(&opts.fen, opts.depth);
     backend.execute_uci(cmds).context("Executing UCI")?;

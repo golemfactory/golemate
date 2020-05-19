@@ -17,14 +17,28 @@ fn is_fen(s: String) -> Result<(), String> {
     about = "Chess position solver using gWASM"
 )]
 pub(crate) struct Opts {
-    #[structopt(short = "f", long = "fen", validator = is_fen)]
+    #[structopt(short, long, validator = is_fen)]
     pub fen: String,
-    #[structopt(short = "d", long = "depth")]
+    #[structopt(short, long, help = "search depth")]
     pub depth: u32,
     #[structopt(
         short = "e",
         long = "engine",
-        help = "Path to a local engine to be used instead of gWASM"
+        help = "path to a local engine to be used instead of gWASM"
     )]
     pub engine: Option<PathBuf>,
+    #[structopt(
+        short,
+        long = "wasm",
+        help = "path to the WASM part of the gWASM binary",
+        conflicts_with = "engine"
+    )]
+    pub wasm_path: Option<PathBuf>,
+    #[structopt(
+        short,
+        long = "js",
+        help = "path to the JS part of the gWASM binary",
+        conflicts_with = "engine"
+    )]
+    pub js_path: Option<PathBuf>,
 }
