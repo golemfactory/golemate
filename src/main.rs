@@ -20,6 +20,8 @@ fn main() -> Result<()> {
         Box::new(backends::GWasmUci::new(
             &opts.wasm_path.unwrap(),
             &opts.js_path.unwrap(),
+            opts.workspace.unwrap(),
+            opts.datadir.unwrap(),
         )?)
     };
     let cmds = backend.generate_uci(&opts.fen, opts.depth);

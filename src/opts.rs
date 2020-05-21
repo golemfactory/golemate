@@ -33,13 +33,16 @@ pub(crate) struct Opts {
         short,
         long = "wasm",
         help = "path to the WASM part of the gWASM binary",
+        group = "binary",
         requires = "js-path",
         requires = "workspace",
-        group = "binary"
+        requires = "datadir"
     )]
     pub wasm_path: Option<PathBuf>,
     #[structopt(short, long = "js", help = "path to the JS part of the gWASM binary")]
     pub js_path: Option<PathBuf>,
     #[structopt(long)]
     pub workspace: Option<PathBuf>,
+    #[structopt(long)]
+    pub datadir: Option<PathBuf>,
 }

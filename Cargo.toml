@@ -12,4 +12,4 @@ env_logger = "0.7.1"
 structopt = "0.3.14"
 fen = "0.1.0"
 anyhow = "1.0.28"
-gwasm-api = "0.2.0"
+gwasm-api = { git = "https://github.com/marmistrz/gwasm-rust-api" }
