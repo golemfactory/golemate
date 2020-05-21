@@ -40,9 +40,10 @@ pub(crate) struct Opts {
         short,
         long = "wasm",
         help = "path to the WASM part of the gWASM binary",
+        group = "binary",
         requires = "js-path",
         requires = "workspace",
-        group = "binary"
+        requires = "datadir"
     )]
     pub wasm_path: Option<PathBuf>,
     #[cfg(feature = "gwasm")]
