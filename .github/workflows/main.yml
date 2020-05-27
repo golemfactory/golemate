@@ -35,6 +35,24 @@ jobs:
         command: fmt
         args: --all -- --check
 
+    - name: Build native only
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --features native
+
+    - name: Build gWASM only
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --features gwasm
+
+    - name: Build all features
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --all-features
+
     - name: Run tests
       uses: actions-rs/cargo@v1
       with:
