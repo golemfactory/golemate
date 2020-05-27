@@ -13,16 +13,10 @@ fn main() -> Result<()> {
     );
 
     let opts = Opts::from_args();
-    let backend: Box<dyn UciBackend> = if let Some(path) = opts.engine {
-        Box::new(backends::NativeUci::new(path))
-    } else {
-        // FIXME unwrap
-        Box::new(backends::GWasmUci::new(
-            &opts.wasm_path.unwrap(),
-            &opts.js_path.unwrap(),
-        )?)
-    };
-    let cmds = backend.generate_uci(&opts.fen, opts.depth);
+    let fen = opts.fen.clone();
+    let depth = opts.depth;
+    let backend: Box<dyn UciBackend> = opts.into_backend()?;
+    let cmds = backend.generate_uci(&fen, depth);
     backend.execute_uci(cmds).context("Executing UCI")?;
     Ok(())
 }

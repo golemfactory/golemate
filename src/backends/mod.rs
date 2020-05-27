@@ -1,7 +1,11 @@
+#[cfg(feature = "gwasm")]
 mod gwasm;
+#[cfg(feature = "native")]
 mod native;
 
+#[cfg(feature = "gwasm")]
 pub use gwasm::*;
+#[cfg(feature = "native")]
 pub use native::*;
 
 use anyhow::Result;

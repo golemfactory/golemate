@@ -821,8 +821,7 @@ dependencies = [
 [[package]]
 name = "gwasm-api"
 version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c246a837341176185fd13451bce74b77cc2876f0fa5d3b82dd4af5b26a6df086"
+source = "git+https://github.com/marmistrz/gwasm-rust-api#a51737a18628e0b9123f1a7e7b31be7878617c57"
 dependencies = [
  "actix",
  "actix-wamp",
