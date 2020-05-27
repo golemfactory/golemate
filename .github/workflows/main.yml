@@ -39,13 +39,13 @@ jobs:
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --features native
+        args: --no-default-features --features native
 
     - name: Build gWASM only
       uses: actions-rs/cargo@v1
       with:
         command: build
-        args: --features gwasm
+        args: --no-default-features  --features gwasm
 
     - name: Build all features
       uses: actions-rs/cargo@v1
