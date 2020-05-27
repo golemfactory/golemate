@@ -16,57 +16,69 @@ fn is_fen(s: String) -> Result<(), String> {
 compile_error!("At least one backend must be enabled");
 
 #[derive(Debug, StructOpt)]
-#[structopt(
-    name = "golemate",
-    author = "Marcin Mielniczuk <marmistrz.dev@zoho.eu>",
-    about = "Chess position solver using gWASM"
-)]
-#[structopt(group = ArgGroup::with_name("binary").required(true))]
-pub(crate) struct Opts {
-    #[structopt(short, long, validator = is_fen)]
-    pub fen: String,
-    #[structopt(short, long, help = "search depth")]
-    pub depth: u32,
-    #[cfg(feature = "native")]
-    #[structopt(
-        short = "e",
-        long = "engine",
-        help = "path to a local engine to be used instead of gWASM",
-        group = "binary"
-    )]
-    pub engine: Option<PathBuf>,
+#[cfg(feature = "gwasm")]
+pub(crate) struct GWasmOpts {
     #[cfg(feature = "gwasm")]
     #[structopt(
         short,
         long = "wasm",
         help = "path to the WASM part of the gWASM binary",
-        group = "binary",
+        group = "backend",
         requires = "js-path",
         requires = "workspace",
         requires = "datadir"
     )]
     pub wasm_path: Option<PathBuf>,
-    #[cfg(feature = "gwasm")]
+
     #[structopt(short, long = "js", help = "path to the JS part of the gWASM binary")]
     pub js_path: Option<PathBuf>,
-    #[cfg(feature = "gwasm")]
+
     #[structopt(long)]
     pub workspace: Option<PathBuf>,
-    #[cfg(feature = "gwasm")]
+
     #[structopt(long)]
     pub datadir: Option<PathBuf>,
+}
+
+#[derive(Debug, StructOpt)]
+#[structopt(
+    name = "golemate",
+    author = "Marcin Mielniczuk <marmistrz.dev@zoho.eu>",
+    about = "Chess position solver using gWASM"
+)]
+#[structopt(group = ArgGroup::with_name("backend").required(true))]
+pub(crate) struct Opts {
+    #[structopt(short, long, validator = is_fen)]
+    pub fen: String,
+
+    #[structopt(short, long, help = "search depth")]
+    pub depth: u32,
+
+    #[cfg(feature = "native")]
+    #[structopt(
+        short = "e",
+        long = "engine",
+        help = "path to a local engine to be used instead of gWASM",
+        group = "backend"
+    )]
+    pub engine: Option<PathBuf>,
+
+    #[cfg(feature = "gwasm")]
+    #[structopt(flatten)]
+    pub gwasm_opts: GWasmOpts,
 }
 
 impl Opts {
     pub(crate) fn into_backend(self) -> Result<Box<dyn UciBackend>> {
         #[cfg(feature = "gwasm")]
         {
-            if self.wasm_path.is_some() {
+            let opt = self.gwasm_opts;
+            if opt.wasm_path.is_some() {
                 let backend = backends::GWasmUci::new(
-                    &self.wasm_path.unwrap(),
-                    &self.js_path.unwrap(),
-                    self.workspace.unwrap(),
-                    self.datadir.unwrap(),
+                    &opt.wasm_path.unwrap(),
+                    &opt.js_path.unwrap(),
+                    opt.workspace.unwrap(),
+                    opt.datadir.unwrap(),
                 )?;
                 return Ok(Box::new(backend));
             }
