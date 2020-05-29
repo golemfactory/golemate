@@ -1,4 +1,4 @@
-use super::{UciBackend, UciOption};
+use super::{UciBackend, UciInput, UciOption, UciOutput};
 use anyhow::{Context, Result};
 use std::path::PathBuf;
 
@@ -28,12 +28,13 @@ impl UciBackend for NativeUci {
         ]
     }
 
-    fn execute_uci(&self, uci: Vec<String>) -> Result<()> {
-        use std::io::{LineWriter, Write};
+    fn execute_uci(&self, uci: UciInput) -> Result<UciOutput> {
+        use std::io::{self, BufRead, BufReader, LineWriter, Write};
         use std::process::{Command, Stdio};
 
         let mut child = Command::new(&self.engine_path)
             .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
             .spawn()
             .context("running the UCI engine")?;
 
@@ -46,7 +47,15 @@ impl UciBackend for NativeUci {
             }
         }
 
-        child.wait().context("waiting for the child process")?;
-        Ok(())
+        let output = child
+            .wait_with_output()
+            .context("waiting for the child process")?;
+        if output.status.success() {
+            let lines: io::Result<_> = BufReader::new(&output.stdout[..]).lines().collect();
+            lines.map_err(Into::into)
+        } else {
+            use anyhow::anyhow;
+            Err(anyhow!("error executing the engine FIXME"))
+        }
     }
 }

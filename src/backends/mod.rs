@@ -21,11 +21,14 @@ impl UciOption<'_> {
     }
 }
 
+pub type UciInput = Vec<String>;
+pub type UciOutput = Vec<String>;
+
 pub trait UciBackend {
-    fn execute_uci(&self, uci: Vec<String>) -> Result<()>;
+    fn execute_uci(&self, uci: UciInput) -> Result<UciOutput>;
     fn get_uci_opts(&self) -> Vec<UciOption<'static>>;
 
-    fn generate_uci(&self, fen: &str, depth: u32) -> Vec<String> {
+    fn generate_uci(&self, fen: &str, depth: u32) -> UciInput {
         let intro = vec!["uci".to_owned()];
         let outro = vec!["ucinewgame".to_owned(), "quit".to_owned()];
         let mut cmds = intro;

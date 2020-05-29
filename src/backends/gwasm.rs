@@ -1,4 +1,4 @@
-use super::{UciBackend, UciOption};
+use super::{UciBackend, UciInput, UciOption, UciOutput};
 use anyhow::{Context, Result};
 use gwasm_api::prelude::*;
 use std::path::{Path, PathBuf};
@@ -38,7 +38,7 @@ impl UciBackend for GWasmUci {
         }]
     }
 
-    fn execute_uci(&self, uci: Vec<String>) -> Result<()> {
+    fn execute_uci(&self, uci: UciInput) -> Result<UciOutput> {
         let binary = GWasmBinary {
             js: &self.js,
             wasm: &self.wasm,
@@ -67,9 +67,21 @@ impl UciBackend for GWasmUci {
         )
         .context("computing the gwasm task")?;
 
-        println!("done: {:?}", computed_task);
-        Ok(())
+        single_subtask_get_output(computed_task)
     }
+}
+
+fn single_subtask_get_output(task: gwasm_api::task::ComputedTask) -> Result<UciOutput> {
+    use std::io::BufRead;
+    use std::io::Result as IoResult;
+
+    let mut subtask = task.subtasks;
+    assert_eq!(subtask.len(), 1);
+    let mut outputs = subtask[0].data.values_mut();
+    let output = outputs.next().expect("subtask values should be non-empty");
+    //outputs.next().expect_none("too many subtask values");
+    let res: IoResult<Vec<_>> = output.lines().collect();
+    res.map_err(Into::into)
 }
 
 struct ProgressTracker;
