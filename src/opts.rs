@@ -4,11 +4,9 @@ use std::path::PathBuf;
 use structopt::{clap::ArgGroup, StructOpt};
 
 fn is_fen(s: String) -> Result<(), String> {
-    use fen::BoardState;
+    use shakmaty::fen::Fen;
 
-    BoardState::from_fen(&s)
-        .map(|_| ())
-        .map_err(|e| format!("{:?}", e))
+    s.parse::<Fen>().map(|_| ()).map_err(|e| format!("{:?}", e))
     // TODO add proper error printing to fen
 }
 
