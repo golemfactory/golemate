@@ -70,18 +70,18 @@ impl Opts {
             let opt = &self.gwasm_opts;
             if opt.wasm_path.is_some() {
                 let backend = backends::GWasmUci::new(
-                    &opt.wasm_path.clone().unwrap(),
-                    &opt.js_path.clone().unwrap(),
-                    opt.workspace.clone().unwrap(),
-                    opt.datadir.clone().unwrap(),
+                    &opt.wasm_path.clone().expect("inconsistent wasm opts"),
+                    &opt.js_path.clone().expect("inconsistent wasm opts"),
+                    opt.workspace.clone().expect("inconsistent wasm opts"),
+                    opt.datadir.clone().expect("inconsistent wasm opts"),
                 )?;
                 return Ok(Box::new(backend));
             }
         }
         #[cfg(feature = "native")]
         {
-            if self.engine.is_some() {
-                let backend = backends::NativeUci::new(self.engine.clone().unwrap());
+            if let Some(engine) = &self.engine {
+                let backend = backends::NativeUci::new(engine.to_owned());
                 return Ok(Box::new(backend));
             }
         }
