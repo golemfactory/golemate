@@ -1,5 +1,5 @@
 use crate::backends::UciOutput;
-use shakmaty::{fen::Fen, Color};
+use shakmaty::{fen::Fen, uci::Uci, Color, Move};
 
 pub enum Advantage {
     Centipawns(u32),
@@ -12,7 +12,8 @@ pub struct AnalysisResult {
     pub advantage_side: Color,
     pub advantage: Advantage,
     pub depth: u32,
-    pub pv: Vec<String>,
+    pub pv: Vec<Uci>,
+    pub best_move: Move,
 }
 
 impl AnalysisResult {
@@ -37,11 +38,13 @@ fn other_color(color: Color) -> Color {
 // TODO create a proper parser, this is too hacky
 pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
     let our_side = startpos_fen.turn;
+    let position: shakmaty::Chess = startpos_fen.position().expect("illegal position");
 
     let mut pv = Vec::new();
     let mut depth = 0;
     let mut advantage = Advantage::Mate(0);
     let mut advantage_side = Color::White;
+    let mut best_move = None;
     for line in uci {
         if line.is_empty() {
             continue;
@@ -62,7 +65,9 @@ pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
                                 .expect("parse error")
                         }
                         "pv" => {
-                            pv = words.map(|w| w.to_owned()).collect();
+                            pv = words
+                                .map(|w| w.parse().expect("UCI move parse error"))
+                                .collect();
                             break;
                         } //
                         "score" => {
@@ -91,6 +96,14 @@ pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
                     }
                 }
             }
+            "bestmove" => {
+                let bmove = words.next().expect("argument missing");
+                let bmove: Uci = bmove.parse().expect("UCI move parse error");
+                let bmove = bmove
+                    .to_move(&position)
+                    .expect("engine returned an illegalm move");
+                best_move = Some(bmove)
+            }
             _ => {}
         }
     }
@@ -100,5 +113,6 @@ pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
         advantage_side,
         depth,
         pv,
+        best_move: best_move.expect("best move not set"),
     }
 }
