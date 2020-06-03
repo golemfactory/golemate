@@ -14,18 +14,15 @@ fn main() -> Result<()> {
     );
 
     let opts = Opts::from_args();
-    let fen = opts.fen.clone();
-    let depth = opts.depth;
-    let raw_uci = opts.raw_uci;
-    let backend: Box<dyn UciBackend> = opts.into_backend()?;
-    let cmds = backend.generate_uci(&fen.to_string(), depth);
+    let backend: Box<dyn UciBackend> = opts.backend()?;
+    let cmds = backend.generate_uci(&opts.fen.to_string(), opts.depth);
     let output = backend.execute_uci(cmds).context("Executing UCI")?;
-    if raw_uci {
+    if opts.raw_uci {
         for line in output {
             println!("{}", line);
         }
     } else {
-        let an_res = analysis::interpret_uci(fen, output);
+        let an_res = analysis::interpret_uci(opts.fen, output);
         println!(
             "Analysis depth: {}. {}. The best move is {}",
             an_res.depth,

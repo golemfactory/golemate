@@ -64,16 +64,16 @@ pub(crate) struct Opts {
 }
 
 impl Opts {
-    pub(crate) fn into_backend(self) -> Result<Box<dyn UciBackend>> {
+    pub(crate) fn backend(&self) -> Result<Box<dyn UciBackend>> {
         #[cfg(feature = "gwasm")]
         {
-            let opt = self.gwasm_opts;
+            let opt = &self.gwasm_opts;
             if opt.wasm_path.is_some() {
                 let backend = backends::GWasmUci::new(
-                    &opt.wasm_path.unwrap(),
-                    &opt.js_path.unwrap(),
-                    opt.workspace.unwrap(),
-                    opt.datadir.unwrap(),
+                    &opt.wasm_path.clone().unwrap(),
+                    &opt.js_path.clone().unwrap(),
+                    opt.workspace.clone().unwrap(),
+                    opt.datadir.clone().unwrap(),
                 )?;
                 return Ok(Box::new(backend));
             }
@@ -81,7 +81,7 @@ impl Opts {
         #[cfg(feature = "native")]
         {
             if self.engine.is_some() {
-                let backend = backends::NativeUci::new(self.engine.unwrap());
+                let backend = backends::NativeUci::new(self.engine.clone().unwrap());
                 return Ok(Box::new(backend));
             }
         }
