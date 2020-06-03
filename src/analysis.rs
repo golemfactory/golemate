@@ -1,5 +1,7 @@
 use crate::backends::UciOutput;
+use anyhow::Result;
 use shakmaty::{fen::Fen, uci::Uci, Color, Move};
+use std::convert::TryInto;
 
 pub enum Advantage {
     Centipawns(u32),
@@ -35,10 +37,12 @@ fn other_color(color: Color) -> Color {
     }
 }
 
-// TODO create a proper parser, this is too hacky
-pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
+// TODO create a proper parser, this is too hacky.
+// There's a lot of expects here. All of them are protocol violations
+// and will be removed once we have a proper parser.
+pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> Result<AnalysisResult> {
     let our_side = startpos_fen.turn;
-    let position: shakmaty::Chess = startpos_fen.position().expect("illegal position");
+    let position: shakmaty::Chess = startpos_fen.position()?;
 
     let mut pv = Vec::new();
     let mut depth = 0;
@@ -82,7 +86,7 @@ pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
                             } else {
                                 our_side.clone()
                             };
-                            let adv_val = scval.abs() as u32;
+                            let adv_val = scval.abs().try_into()?;
                             advantage = match sctype {
                                 _ if scval == 0 => Advantage::Equality,
                                 "cp" => Advantage::Centipawns(adv_val),
@@ -108,11 +112,11 @@ pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> AnalysisResult {
         }
     }
 
-    AnalysisResult {
+    Ok(AnalysisResult {
         advantage,
         advantage_side,
         depth,
         pv,
         best_move: best_move.expect("best move not set"),
-    }
+    })
 }

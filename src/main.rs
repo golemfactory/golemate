@@ -22,7 +22,7 @@ fn main() -> Result<()> {
             println!("{}", line);
         }
     } else {
-        let an_res = analysis::interpret_uci(opts.fen, output);
+        let an_res = analysis::interpret_uci(opts.fen, output)?;
         println!(
             "Analysis depth: {}. {}. The best move is {}",
             an_res.depth,
