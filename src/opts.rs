@@ -1,14 +1,8 @@
 use crate::{backends, UciBackend};
 use anyhow::Result;
+use shakmaty::fen::Fen;
 use std::path::PathBuf;
 use structopt::{clap::ArgGroup, StructOpt};
-
-fn is_fen(s: String) -> Result<(), String> {
-    use shakmaty::fen::Fen;
-
-    s.parse::<Fen>().map(|_| ()).map_err(|e| format!("{:?}", e))
-    // TODO add proper error printing to fen
-}
 
 #[cfg(not(any(feature = "gwasm", feature = "native")))]
 compile_error!("At least one backend must be enabled");
@@ -46,11 +40,14 @@ pub(crate) struct GWasmOpts {
 )]
 #[structopt(group = ArgGroup::with_name("backend").required(true))]
 pub(crate) struct Opts {
-    #[structopt(short, long, validator = is_fen)]
-    pub fen: String,
+    #[structopt(short, long)]
+    pub fen: Fen,
 
     #[structopt(short, long, help = "search depth")]
     pub depth: u32,
+
+    #[structopt(short, long = "raw", help = "output raw UCI instead of analysis")]
+    pub raw_uci: bool,
 
     #[cfg(feature = "native")]
     #[structopt(
