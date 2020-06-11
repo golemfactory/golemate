@@ -1,3 +1,8 @@
+[workspace]
+members = [
+    "gui"
+]
+
 [package]
 name = "golemate"
 version = "0.1.0"
