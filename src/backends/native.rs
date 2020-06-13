@@ -1,5 +1,6 @@
 use super::{UciBackend, UciInput, UciOption, UciOutput};
 use anyhow::{Context, Result};
+use std::convert::TryInto;
 use std::path::PathBuf;
 
 /// Runs a client locally
@@ -19,7 +20,7 @@ impl UciBackend for NativeUci {
         vec![
             UciOption {
                 name: "Threads",
-                value: 8,
+                value: num_cpus::get().try_into().unwrap(),
             },
             UciOption {
                 name: "Hash",

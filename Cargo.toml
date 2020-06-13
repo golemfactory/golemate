@@ -20,7 +20,7 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [features]
 default = ["gwasm", "native"]
-native = []
+native = ["num_cpus"]
 gwasm = ["gwasm-api"]
 
 [dependencies]
@@ -30,3 +30,4 @@ structopt = "0.3.14"
 anyhow = "1.0.28"
 gwasm-api = { version = "0.3.0", optional = true }
 shakmaty = "0.16.3"
+num_cpus = { version = "1.13.0", optional = true }
