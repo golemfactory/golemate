@@ -60,7 +60,7 @@ pub fn interpret_uci(startpos_fen: Fen, uci: UciOutput) -> Result<AnalysisResult
                 loop {
                     let cmdtype = words.next().expect("type should be non-empty");
                     match cmdtype {
-                        "String" => continue,
+                        "String" => break,
                         "depth" => {
                             depth = words
                                 .next()
