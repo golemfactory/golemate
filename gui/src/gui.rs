@@ -61,7 +61,7 @@ fn launch_golemate_native(
 // }
 
 const EVALUATE_TEXT: &str = "Evaluate position";
-const EVALUATING_TEXT: &str = "Evaluate position";
+const EVALUATING_TEXT: &str = "Evaluating...";
 const VERTICAL_SPACING: i32 = 6;
 const BORDER_WIDTH: u32 = 10;
 
