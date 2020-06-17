@@ -1,7 +1,8 @@
 use super::{UciBackend, UciInput, UciOption, UciOutput};
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use gwasm_api::prelude::*;
 use std::path::{Path, PathBuf};
+use std::{fs, io};
 
 pub struct GWasmUci {
     wasm: Vec<u8>,
@@ -48,7 +49,12 @@ impl UciBackend for GWasmUci {
         uci.push_str("\n");
         let input = uci.as_bytes();
 
-        // TODO create or check the workspace
+        fs::create_dir(&self.workspace)
+            .map_err(|e| match e.kind() {
+                io::ErrorKind::AlreadyExists => anyhow!("Workspace already exists"),
+                _ => e.into(),
+            })
+            .context("creating the workspace")?;
 
         let task = TaskBuilder::try_new(&self.workspace, binary)?
             .name("golemate")
