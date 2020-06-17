@@ -27,6 +27,15 @@ impl AnalysisResult {
             Centipawns(cp) => format!("{:?} has {} centipawns advantage", self.advantage_side, cp),
         }
     }
+
+    pub fn describe(&self) -> String {
+        format!(
+            "Analysis depth: {}.\n{}.\nThe best move is {}.",
+            self.depth,
+            self.describe_advantage(),
+            self.best_move
+        )
+    }
 }
 
 fn other_color(color: Color) -> Color {

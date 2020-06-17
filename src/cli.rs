@@ -104,12 +104,7 @@ fn main() -> Result<()> {
         }
     } else {
         let an_res = analysis::interpret_uci(opts.fen, output)?;
-        println!(
-            "Analysis depth: {}. {}. The best move is {}",
-            an_res.depth,
-            an_res.describe_advantage(),
-            an_res.best_move
-        )
+        println!("{}", an_res.describe());
     }
 
     Ok(())

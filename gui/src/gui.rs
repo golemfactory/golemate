@@ -6,9 +6,13 @@ use gtk::{
     main_quit, Button, ButtonsType, DialogFlags, Entry, HeaderBar, Label, MessageDialog,
     MessageType, Orientation, SpinButton, WindowType,
 };
+use shakmaty::fen::Fen;
+
+use std::ops::Deref;
 use std::path::PathBuf;
 use std::thread;
 
+use golemate::analysis;
 use golemate::backends::{GWasmUci, NativeUci, UciBackend};
 
 pub struct App {
@@ -38,8 +42,8 @@ const APP_NAME: &str = "Golemate";
 //     )
 // }
 
-fn launch_golemate_native(
-    backend: Box<dyn UciBackend>,
+fn launch_golemate<B: Deref<Target = dyn UciBackend>>(
+    backend: B,
     fen: &str,
     depth: u32,
 ) -> Result<UciOutput> {
@@ -47,18 +51,6 @@ fn launch_golemate_native(
     let output = backend.execute_uci(cmds).context("Executing UCI")?;
     Ok(output)
 }
-
-// fn launch_golemate_gwasm(
-//     wasm_path: &Path,
-//     js_path: &Path,
-//     workspace: PathBuf,
-//     datadir: PathBuf,
-// ) -> Result<UciOutput> {
-//     let backend = GWasmUci::new(wasm_path, js_path, workspace, datadir)?;
-//     let cmds = backend.generate_uci(fen, depth);
-//     let output = backend.execute_uci(cmds).context("Executing UCI")?;
-//     Ok(vec![])
-// }
 
 const EVALUATE_TEXT: &str = "Evaluate position";
 const EVALUATING_TEXT: &str = "Evaluating...";
@@ -143,6 +135,7 @@ impl App {
             eval_button.set_sensitive(false);
 
             let fen = position_fen.get_buffer().get_text();
+            let fen2: Result<Fen, _> = fen.clone().parse();
             let depth = depth.get_value_as_int() as u32;
 
             let (tx, rx) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
@@ -171,29 +164,34 @@ impl App {
                     },
                     x => panic!("Invalid pane name: {:?}", x),
                 };
-                let res = launch_golemate_native(backend, &fen, depth);
+                let res = launch_golemate(backend, &fen, depth);
                 tx.send(res).expect("Send failed");
             });
 
             rx.attach(None, clone!(@strong window => move |val| {
                 eval_button.set_sensitive(true);
                 eval_button.set_label(EVALUATE_TEXT);
-                let dialog = match val {
-                    Ok(output) => MessageDialog::new(
-                        Some(&window),
-                        DialogFlags::empty(),
-                        MessageType::Info,
-                        ButtonsType::Ok,
-                        &output.join("\n"),
-                    ),
-                    Err(e) => MessageDialog::new(
-                        Some(&window),
-                        DialogFlags::MODAL,
-                        MessageType::Error,
-                        ButtonsType::Ok,
-                        &format!("Error: {:?}", e),
-                    )
+                let dialog_type;
+                let dialog_body;
+                match val {
+                    Ok(output) => {
+                        let fen2 = fen2.clone().expect("internal error, invalid fen");
+                        let an_res = analysis::interpret_uci(fen2, output).expect("internal analysis error");
+                        dialog_body = an_res.describe();
+                        dialog_type = MessageType::Info;
+                    },
+                    Err(e) => {
+                        dialog_type = MessageType::Error;
+                        dialog_body = format!("Error: {:?}", e);
+                    }
                 };
+                let dialog = MessageDialog::new(
+                    Some(&window),
+                    DialogFlags::empty(),
+                    dialog_type,
+                    ButtonsType::Ok,
+                    &dialog_body
+                );
                 dialog.run();
                 dialog.destroy();
                 Continue(true)
