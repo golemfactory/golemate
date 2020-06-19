@@ -25,10 +25,10 @@ pub struct GWasmOpts {
     #[structopt(short, long = "js", help = "path to the JS part of the gWASM binary")]
     pub js_path: Option<PathBuf>,
 
-    #[structopt(long)]
+    #[structopt(long, help = "path to the workspace used by Golem")]
     pub workspace: Option<PathBuf>,
 
-    #[structopt(long)]
+    #[structopt(long, help = "path to the Golem client data directory")]
     pub datadir: Option<PathBuf>,
 }
 
@@ -40,10 +40,10 @@ pub struct GWasmOpts {
 )]
 #[structopt(group = ArgGroup::with_name("backend").required(true))]
 pub struct Opts {
-    #[structopt(short, long)]
+    #[structopt(short, long, help = "position in the FEN format")]
     pub fen: Fen,
 
-    #[structopt(short, long, help = "search depth")]
+    #[structopt(short, long, help = "analysis depth")]
     pub depth: u32,
 
     #[structopt(short, long = "raw", help = "output raw UCI instead of analysis")]
@@ -53,7 +53,7 @@ pub struct Opts {
     #[structopt(
         short = "e",
         long = "engine",
-        help = "path to a local engine to be used instead of gWASM",
+        help = "path to a local engine to be used by the native backend",
         group = "backend"
     )]
     pub engine: Option<PathBuf>,
