@@ -26,3 +26,21 @@ cargo build --features native --no-default-features
 ```
 
 Note that the GUI doesn't currently support feature-gating described above.
+
+## Hardcoded parameters
+Since this is a PoC, not all parameters are configurable. In particular, the following are hardcoded:
+* hash size: 1024 for native, 128 for gWASM (cf. #1)
+* Golem client address: 127.0.0.1, port 61001
+
+## Example use
+Run a position analysis with the native backend
+```
+cargo run -- --engine /path/to/stockfish_20011801_x64_bmi2 --fen "r1bqkbnr/ppp2ppp/2n5/8/2BpP3/5N2/PP3PPP/RNBQK2R w KQkq - 1 6" --depth 20
+```
+
+Run a position analysis with the gWASM backend
+```
+cargo run -- --wasm $HOME/chess/FabChess/target/wasm32-unknown-emscripten/debug/uci_engine.wasm --js $HOME/chess/FabChess/target/wasm32-unknown-emscripten/debug/uci-engine.js --workspace $PWD/workspace --datadir $HOME/golem/datadir1/ --fen "8/4kp1p/1n2p3/1P6/8/8/p2rBPPP/R4K2 w - - 0 36" --depth 20
+```
+
+For more information about the available options, use `cargo run -- --help`. Note that the available switches depend on the enabled features.
