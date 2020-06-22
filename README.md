@@ -39,7 +39,7 @@ Since this is a PoC, not all parameters are configurable. In particular, the fol
 * Golem client address: 127.0.0.1, port 61001
 
 ## Example use
-You can transcode a chess position into `fen` format [here](https://lichess.org/editor), for instance. 
+You can export a chess position to FEN format using the [lichess.org editor](https://lichess.org/editor), for instance.
 
 ### CLI
 Run a position analysis with the native backend
