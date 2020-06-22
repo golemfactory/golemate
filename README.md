@@ -3,7 +3,7 @@
 ![Continuous integration](https://github.com/golemfactory/golemate/workflows/Continuous%20integration/badge.svg)
 
 ## About Golemate
-Golemate is a proof-of-concept of running chess engines under Golem. This repository consists of three parts:
+Golemate is a proof-of-concept of running chess engines under Golem. At the moment, it searches for the best move for a given position. We would like to have human vs Golem matches in the future. This repository consists of three parts:
 * a common library which provides means to launch engines compliant with the [UCI protocol]
 * a CLI client application
 * a GUI client application
@@ -17,7 +17,7 @@ Launches a UCI-compatible engine compiled to gWASM, using Golem Clay. Running jo
 
 For more information how to setup Golem, consult the [Golem docs](https://docs.golem.network).
 To get a gWASM-compatible engine,
-you may follow the build instructions of [our fork of FabChess](https://github.com/golemfactory/FabChess).
+you may follow the build instructions of [our fork of FabChess](https://github.com/golemfactory/FabChess). You can try another engine if it is [compatible with gWASM](https://docs.golem.network/#/Products/gWASM/Sandboxing).
 
 ## Enable/disable features
 Build of particular backends may be disabled using the cargo features for the library and the CLI. By default all backends are enabled.
@@ -39,6 +39,8 @@ Since this is a PoC, not all parameters are configurable. In particular, the fol
 * Golem client address: 127.0.0.1, port 61001
 
 ## Example use
+You can transcode a chess position into `fen` format [here](https://lichess.org/editor), for instance. 
+
 ### CLI
 Run a position analysis with the native backend
 ```
